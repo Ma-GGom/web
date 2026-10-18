@@ -6,12 +6,14 @@ import { useAuthStore } from "@/features/auth/store";
 import { useSettingsActions } from "@/features/settings/hooks";
 import { useSettingsStore } from "@/features/settings/store";
 import { DISTANCE_OPTIONS } from "@/shared/constants/distances";
+import { MAX_NAME_LENGTH, NAME_FORMAT_MESSAGE, NAME_PATTERN } from "@/shared/constants/member-name";
 import { RECEIVE_DAY_OPTIONS } from "@/shared/constants/receive-days";
 import { RECEIVE_TIME_SLOTS } from "@/shared/constants/receive-time-slots";
 import { REGION_OPTIONS } from "@/shared/constants/regions";
 import { Button } from "@/shared/ui/button";
 import { Checkbox } from "@/shared/ui/checkbox";
 import { ConfirmModal } from "@/shared/ui/confirm-modal";
+import { Input } from "@/shared/ui/input";
 import { Toast } from "@/shared/ui/toast";
 
 export function SettingsForm() {
@@ -24,6 +26,7 @@ export function SettingsForm() {
   const setReceiveTime = useSettingsStore((state) => state.setReceiveTime);
   const toggleRegion = useSettingsStore((state) => state.toggleRegion);
   const toggleDistance = useSettingsStore((state) => state.toggleDistance);
+  const setName = useSettingsStore((state) => state.setName);
   const applyResponse = useSettingsStore((state) => state.applyResponse);
   const markExistingSubscription = useSettingsStore((state) => state.markExistingSubscription);
   const resetForm = useSettingsStore((state) => state.reset);
@@ -32,6 +35,7 @@ export function SettingsForm() {
   const [dismissedError, setDismissedError] = useState<string | null>(null);
   const [dismissedMessage, setDismissedMessage] = useState<string | null>(null);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -54,8 +58,16 @@ export function SettingsForm() {
     event.preventDefault();
     setDismissedError(null);
     setDismissedMessage(null);
+    setValidationError(null);
 
-    const updated = await updateSubscription(form);
+    // 입력 중에는 자모가 잠깐 섞이므로 저장할 때만 검사한다.
+    const name = form.name.trim();
+    if (name && !NAME_PATTERN.test(name)) {
+      setValidationError(NAME_FORMAT_MESSAGE);
+      return;
+    }
+
+    const updated = await updateSubscription({ ...form, name });
     if (updated) {
       markExistingSubscription(true);
     }
@@ -74,12 +86,33 @@ export function SettingsForm() {
   };
 
   const selectedDays = form.receive_days.split(",").filter(Boolean);
-  const toastError = error && error !== dismissedError ? error : null;
+  const toastError = validationError ?? (error && error !== dismissedError ? error : null);
   const toastMessage = message && message !== dismissedMessage ? message : null;
 
   return (
     <div className="space-y-4">
       <form id="settings-form" className="space-y-4" onSubmit={handleSubmit}>
+        <section className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-5">
+          <h3 className="text-sm font-bold tracking-wide text-gray-700">내 정보</h3>
+
+          <div className="mt-3 space-y-2">
+            <label className="text-xs font-semibold text-gray-500" htmlFor="settings-name">
+              이름 (선택)
+            </label>
+            <Input
+              autoComplete="name"
+              id="settings-name"
+              maxLength={MAX_NAME_LENGTH}
+              placeholder="이름을 입력해 주세요"
+              value={form.name}
+              onChange={(event) => setName(event.target.value)}
+            />
+            <p className="text-xs text-gray-400">
+              공백 없이 한글만 · 최대 {MAX_NAME_LENGTH}자 · 비워 두고 저장하면 이름이 지워져요.
+            </p>
+          </div>
+        </section>
+
         <div className="grid gap-3 lg:grid-cols-2">
           <section className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-5">
             <h3 className="text-sm font-bold tracking-wide text-gray-700">수신 주기</h3>
@@ -192,7 +225,10 @@ export function SettingsForm() {
         <Toast
           message={toastError}
           variant="error"
-          onClose={() => setDismissedError(toastError)}
+          onClose={() => {
+            setValidationError(null);
+            setDismissedError(toastError);
+          }}
         />
       )}
       {!toastError && toastMessage && (

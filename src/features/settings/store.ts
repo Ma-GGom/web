@@ -10,6 +10,7 @@ interface SubscriptionState {
   toggleRegion: (region: string) => void;
   toggleDistance: (distance: string) => void;
   setIncludeSmall: (value: boolean) => void;
+  setName: (value: string) => void;
   applyResponse: (data: SubscriptionResponse) => void;
   markExistingSubscription: (value: boolean) => void;
   reset: () => void;
@@ -21,6 +22,7 @@ const defaultForm: SubscriptionSettings = {
   pref_regions: ["수도권"],
   pref_distances: ["10K", "HALF"],
   include_small: true,
+  name: "",
 };
 
 function uniqueValues(values: string[]): string[] {
@@ -79,9 +81,13 @@ export const useSettingsStore = create<SubscriptionState>((set) => ({
     set((state) => ({
       form: { ...state.form, include_small },
     })),
+  setName: (name) =>
+    set((state) => ({
+      form: { ...state.form, name },
+    })),
   applyResponse: (data) =>
     set(() => ({
-      form: data,
+      form: { ...data, name: data.name ?? "" },
       hasExistingSubscription: true,
     })),
   markExistingSubscription: (value) =>
