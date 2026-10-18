@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 
 export default function SettingsPage() {
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-3 pb-2 pt-2 sm:px-5 sm:pt-3 lg:px-6">
+    <main className="mx-auto flex min-h-screen w-full max-w-3xl flex-col px-3 pb-2 pt-2 sm:px-5 sm:pt-3 lg:px-6">
       <section className="flex-1 px-4 pb-2 pt-4 sm:px-5 sm:pb-3 sm:pt-5">
         <SettingsHeader />
         <SettingsForm />

@@ -35,7 +35,7 @@ export function useSettingsActions() {
       setError(null);
       setMessage(null);
       await settingsApi.updateSubscription(payload);
-      setMessage("구독 설정이 변경되었습니다.");
+      setMessage("저장되었습니다.");
       return true;
     } catch (caughtError) {
       setError(caughtError instanceof Error ? caughtError.message : "구독 설정 변경에 실패했습니다.");

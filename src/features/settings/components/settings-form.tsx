@@ -13,7 +13,6 @@ import { REGION_OPTIONS } from "@/shared/constants/regions";
 import { Button } from "@/shared/ui/button";
 import { Checkbox } from "@/shared/ui/checkbox";
 import { ConfirmModal } from "@/shared/ui/confirm-modal";
-import { Input } from "@/shared/ui/input";
 import { Toast } from "@/shared/ui/toast";
 
 export function SettingsForm() {
@@ -92,25 +91,19 @@ export function SettingsForm() {
   return (
     <div className="space-y-4">
       <form id="settings-form" className="space-y-4" onSubmit={handleSubmit}>
-        <section className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-5">
-          <h3 className="text-sm font-bold tracking-wide text-gray-700">내 정보</h3>
-
-          <div className="mt-3 space-y-2">
-            <label className="text-xs font-semibold text-gray-500" htmlFor="settings-name">
-              이름 (선택)
-            </label>
-            <Input
-              autoComplete="name"
-              id="settings-name"
-              maxLength={MAX_NAME_LENGTH}
-              placeholder="이름을 입력해 주세요"
-              value={form.name}
-              onChange={(event) => setName(event.target.value)}
-            />
-            <p className="text-xs text-gray-400">
-              공백 없이 한글만 · 최대 {MAX_NAME_LENGTH}자 · 비워 두고 저장하면 이름이 지워져요.
-            </p>
-          </div>
+        <section className="flex items-center gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-2.5 sm:px-5">
+          <label className="shrink-0 text-sm font-bold tracking-wide text-gray-700" htmlFor="settings-name">
+            이름
+          </label>
+          <input
+            autoComplete="name"
+            className="h-8 w-full max-w-[200px] rounded-lg border border-gray-200 bg-white px-2.5 text-base text-gray-900 outline-none transition-all placeholder:text-gray-400 focus:border-indigo-400/70 focus:ring-2 focus:ring-indigo-200 sm:text-sm"
+            id="settings-name"
+            maxLength={MAX_NAME_LENGTH}
+            placeholder="선택 입력"
+            value={form.name}
+            onChange={(event) => setName(event.target.value)}
+          />
         </section>
 
         <div className="grid gap-3 lg:grid-cols-2">
